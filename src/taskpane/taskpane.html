@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contoso Task Pane Add-in</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+
+    <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
+    <link rel="stylesheet"
+        href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.1/css/fabric.min.css" />
+
+    <!-- Template styles -->
+    <link href="taskpane.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="ms-font-m ms-welcome ms-Fabric">
+    <main id="app-body" class="ms-welcome__main" style="display: none;">
+        <p class="ms-font-l">Modify the source files, then click <b>Run</b>.</p>
+        <div role="button" id="run" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
+            <span class="ms-Button-label">Run</span>
+        </div>
+    </main>
+
+    <div class="tab">
+        <button class="tablinks" onclick="openCity(event, 'APIKey')">APIKey</button>
+        <button class="tablinks" onclick="openCity(event, 'UserInfo')">UserInfo</button>
+        <button class="tablinks" onclick="openCity(event, 'Transaction')">Transaction</button>
+    </div>
+
+    <div id="APIKey" class="tabcontent">
+        <div id="header_accesstoken_expired">
+            <h3>Access Token expired</h3>
+            <button id="button_reload_APIKey">Reload API KEY</button>
+        </div>
+    </div>
+
+    <div id="UserInfo" class="tabcontent">
+        <button id="button_getUserInfo">Get UserInfo</button>
+    </div>
+
+    <div id="Transaction" class="tabcontent">
+        <div class="custom-select" style="width:400px;">
+            <select id="selectItem" style="text-align: center;width: 100px;height: 25px;">
+                <option value="0">Select time:</option>
+            </select>
+            
+        </div>
+        <br>
+        <button id="button_getTransaction">Get Transaction</button>
+    </div>
+
+    <script>
+        function openCity(evt, cityName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(cityName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+</body>
+
+</html>
