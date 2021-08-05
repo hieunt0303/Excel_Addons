@@ -1,9 +1,11 @@
 // Nơi gọi API
-export const URL_ROOT =" https://oauth.casso.vn/v1/"
+globalThis.URL_ROOT =" https://oauth.casso.vn/v1/"
 
 // API KEY
-export const API_KEY ="9784ff40-f19c-11eb-bd43-a599ec8fd1f2"
+globalThis.API_KEY ="9784ff40-f19c-11eb-bd43-a599ec8fd1f2"
 
-export const ACCESS_TOKEN ="eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxNjUyIiwiZXhwIjoxNjI4MTA5OTg0LCJpYXQiOjE2MjgwODgzODR9.FdjhgHCFkkmYkwpcohB0b9QSKsCV-omw_2adJCjPlME79Cx6Sy8IH3oq-Ui3SbEvzAaHJQBCswPNa7DGhK5M1g"
+globalThis.ACCESS_TOKEN ="eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxNjUyIiwiZXhwIjoxNjI4MTg4OTg0LCJpYXQiOjE2MjgxNjczODR9.QVkjzyozRfMLVCDd_PaAclc3rWEL71I_hi0lNn7miHFdlnqb0HF-5w3rxAVxLYqVjSQ9xTNNpnyR2goHj6Mp0Q"
 
-export const TOTAL_TRANSACTION =[]
+globalThis.TOTAL_TRANSACTION =[]
+
+globalThis.LAST_PAGE_RECORDS = 0

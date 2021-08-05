@@ -1,8 +1,7 @@
-/* /* 
- * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
- * See LICENSE in the project root for license information.
- */
-/* Style the tab */
+img{
+  height: 20px;
+  align-items: center;
+}
 select {
   /*for firefox*/
   -moz-appearance: none;
@@ -62,3 +61,10 @@ option{
     text-align: center;
     display: block;
 }
+/* 
+#gr_radio_fromDatetoDate{
+  display: none;
+}
+#gr_radio_selectDate{
+  display: none;
+} */

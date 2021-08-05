@@ -1,10 +1,8 @@
-import { API_KEY, URL_ROOT, ACCESS_TOKEN } from "../valueConst.js"
 import { get } from "../../src/function/getAccessToken.js"
 import { getUserInfo } from "../../src/function/UserInfo.js"
-import { getTransaction, lastTransPage, lastTransDate } from "../../src/function/Transaction.js"
+import { getTransaction, lastTransPage, lastTransDate, filterPage } from "../../src/function/Transaction.js"
 import swal from 'sweetalert';
-
-
+import { ClearAllData, addInitialSheet } from "../function/Excelfunction.js"
 
 /* global console, document, Excel, Office */
 
@@ -16,6 +14,7 @@ Office.onReady((info) => {
 
   }
 });
+
 
 export async function run() {
   try {
@@ -40,65 +39,77 @@ export async function run() {
 }
 
 
-function getAPI() {
-  const url = URL_ROOT + "userInfo";
-  fetch(url, {
-    method: "GET",
-    redirect: "follow", // manual, *follow, error
-    mode: "cors", // no-cors, *cors, same-origin
-    cache: "default", // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: "same-origin",
-    headers: {
-      authorization: `${ACCESS_TOKEN}`,
-      "X-Auth-Token": `${ACCESS_TOKEN}`,
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": true,
-    },
-  })
-    .then((resp) => resp.json())
-    .then(function (data) {
-      console.log(data);
-      if (data.error == "401")
-        // run function to get APIKey
 
-        get(URL_ROOT + "token", API_KEY)
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+// CHẠY HÀM NÀY ĐỂ CÓ 2 SHEET BAN ĐẦU ĐỂ THAO TÁC
+//addInitialSheet()
+
+// radio check selection
+var check_selectTime = document.getElementById("check_selectTime")
+var check_DateToDate = document.getElementById("check_DateToDate")
+// check_DateToDate.onclick = check_transaction()
+// check_DateToDate.onchange = check_transaction()
+// check_selectTime.onclick = check_transaction()
+// check_selectTime.onchange = check_transaction()
+
+var rad = document.myForm.myRadios;
+var prev = null;
+for (var i = 0; i < rad.length; i++) {
+    rad[i].addEventListener('change', check_transaction());
 }
+function check_transaction() {
+  if (check_DateToDate.checked) {
+    document.getElementById("gr_radio_fromDatetoDate").style.display = "block"
+    document.getElementById("gr_radio_selectDate").style.display = "none"
 
+  }
+  else if (check_selectTime.checked) {
+    document.getElementById("gr_radio_fromDatetoDate").style.display = "none"
+    document.getElementById("gr_radio_selectDate").style.display = "block"
+  }
+}
 
 var elementExpired = document.getElementById("header_accesstoken_expired")
 var elementExist = document.getElementById("header_accesstoken_exist")
 
-
 document.getElementById("button_reload_APIKey").onclick = function () {
 
+  console.log(filterPage(2, {}))
 }
 document.getElementById("button_getUserInfo").onclick = function () {
   getUserInfo()
   //console.log('hieu')
 }
+
 document.getElementById("button_getTransaction").onclick = function () {
+
   //getTransaction()
-  swal("Do you want do delete old data?", {
-    buttons: ["No", "Yes"],
-  })
-    .then(function (result) {
-      if (result) {
-        // Yes
-        console.log("1")
-      }
-      else {
-        //No
-        console.log("2")
-      }
+  if (optionItem.value == "0")
+    text_alert.style.display = "block"
+  else {
+    text_alert.style.display = "none"
+
+    swal("Do you want do delete old data?", {
+      buttons: ["No", "Yes"],
     })
-  
+      .then(function (result) {
+        if (result) {
+          // Yes
+          ClearAllData("Transaction")
+
+        }
+        else {
+          //No
+          console.log("2")
+
+        }
+      })
+
+  }
+
 }
 
 var optionItem = document.getElementById("selectItem")
+var text_alert = document.getElementById("text_alert")
 
 document.getElementById("selectItem").onchange = function () {
   console.log(document.getElementById("selectItem").value)
@@ -139,7 +150,7 @@ function createDataCombo(objDate) {
   console.log(arrData)
   for (let i = 0; i < arrData.length; ++i) {
     var opt = document.createElement("option")
-    
+
     opt.value = `${arrData[i].month}/${arrData[i].year}`
     opt.text = `${arrData[i].month}/${arrData[i].year}`
     optionItem.appendChild(opt)

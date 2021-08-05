@@ -16,6 +16,23 @@
 
     <!-- Template styles -->
     <link href="taskpane.css" rel="stylesheet" type="text/css" />
+
+    <!-- calender -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="Stylesheet"
+        type="text/css" />
+    <script type="text/javascript">
+        $(function () {
+            $("#txtDate").datepicker({
+                showOn: 'button',
+                buttonImageOnly: true,
+                buttonImage: '../../src/img/icon_calender.png',
+                dateFormat: 'dd/mm/yy'
+            });
+        });
+    </script>
+
 </head>
 
 <body class="ms-font-m ms-welcome ms-Fabric">
@@ -35,7 +52,7 @@
     <div id="APIKey" class="tabcontent">
         <div id="header_accesstoken_expired">
             <h3>Access Token expired</h3>
-            <button id="button_reload_APIKey">Reload API KEY</button>
+            <button id="button_reload_APIKey">Reload Access Token</button>
         </div>
     </div>
 
@@ -44,14 +61,33 @@
     </div>
 
     <div id="Transaction" class="tabcontent">
-        <div class="custom-select" style="width:400px;">
-            <select id="selectItem" style="text-align: center;width: 100px;height: 25px;">
-                <option value="0">Select time:</option>
-            </select>
-            
-        </div>
-        <br>
         <button id="button_getTransaction">Get Transaction</button>
+        <br><br>
+        <div>
+            <div>
+                <form name="myForm">
+                    <input type="radio" name="myRadios" id="check_selectTime" >
+                    <label for="radio_selecttime">Select time</label>
+                    <input type="radio" name="myRadios" id="check_DateToDate">
+                    <label for="html">From date to date</label>
+                </form>
+            </div>
+            <div>
+                <div id="gr_radio_fromDatetoDate">
+                    <input type="text" id="txtDate" name="SelectedDate" readonly="readonly" />
+                    <br><br>
+                    <input type="text" id="txtDate1" name="SelectedDate" readonly="readonly" />
+                </div>
+
+                <div id="gr_radio_selectDate" class="custom-select" style="width:400px;">
+                    <select id="selectItem" style="text-align: center;width: 100px;height: 25px;">
+                        <option value="0">Select time:</option>
+                    </select>
+                    <p id="text_alert" style="color: red;display: none;">Please choose time to get transaction!</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -69,6 +105,9 @@
             evt.currentTarget.className += " active";
         }
     </script>
+    <br>
+
+
 </body>
 
 </html>
