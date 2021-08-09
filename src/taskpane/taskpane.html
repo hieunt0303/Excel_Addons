@@ -30,6 +30,12 @@
                 buttonImage: '../../src/img/icon_calender.png',
                 dateFormat: 'dd/mm/yy'
             });
+            $("#txtDate1").datepicker({
+                showOn: 'button',
+                buttonImageOnly: true,
+                buttonImage: '../../src/img/icon_calender.png',
+                dateFormat: 'dd/mm/yy'
+            });
         });
     </script>
 
@@ -66,7 +72,7 @@
         <div>
             <div>
                 <form name="myForm">
-                    <input type="radio" name="myRadios" id="check_selectTime" >
+                    <input type="radio" name="myRadios" id="check_selectTime">
                     <label for="radio_selecttime">Select time</label>
                     <input type="radio" name="myRadios" id="check_DateToDate">
                     <label for="html">From date to date</label>
@@ -106,8 +112,11 @@
         }
     </script>
     <br>
-
-
+    <div>
+        <input type="text" name="" id="text_apiKey">
+        <button id="button_submit_apiKey">Submit</button>
+    </div>
+    <div class="loader"></div>
 </body>
 
 </html>

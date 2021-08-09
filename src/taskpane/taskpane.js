@@ -1,9 +1,9 @@
 import { get } from "../../src/function/getAccessToken.js"
 import { getUserInfo } from "../../src/function/UserInfo.js"
-import { getTransaction, lastTransPage, lastTransDate, filterPage } from "../../src/function/Transaction.js"
+import { getTransaction_fromTo, lastTransPage, lastTransDate, filterPage } from "../../src/function/Transaction.js"
 import swal from 'sweetalert';
 import { ClearAllData, addInitialSheet } from "../function/Excelfunction.js"
-
+import { addContent, getInformationFromAPIKEY } from "../function/HandleAPI.js"
 /* global console, document, Excel, Office */
 
 Office.onReady((info) => {
@@ -54,8 +54,9 @@ var check_DateToDate = document.getElementById("check_DateToDate")
 var rad = document.myForm.myRadios;
 var prev = null;
 for (var i = 0; i < rad.length; i++) {
-    rad[i].addEventListener('change', check_transaction());
+  rad[i].addEventListener('change', check_transaction);
 }
+
 function check_transaction() {
   if (check_DateToDate.checked) {
     document.getElementById("gr_radio_fromDatetoDate").style.display = "block"
@@ -76,35 +77,59 @@ document.getElementById("button_reload_APIKey").onclick = function () {
   console.log(filterPage(2, {}))
 }
 document.getElementById("button_getUserInfo").onclick = function () {
-  getUserInfo()
-  //console.log('hieu')
+  //getUserInfo()
+  //console.log( "2021-02-03" < "2021-02-02")
+  addContent(API_KEY, ACCESS_TOKEN, "null")
 }
 
 document.getElementById("button_getTransaction").onclick = function () {
-
-  //getTransaction()
-  if (optionItem.value == "0")
-    text_alert.style.display = "block"
-  else {
-    text_alert.style.display = "none"
-
-    swal("Do you want do delete old data?", {
-      buttons: ["No", "Yes"],
-    })
-      .then(function (result) {
-        if (result) {
-          // Yes
-          ClearAllData("Transaction")
-
-        }
-        else {
-          //No
-          console.log("2")
-
-        }
-      })
-
+  if (check_DateToDate.checked == false && check_selectTime.checked == false) {
+    swal("Hey you", "Please check 1 select to get transaction");
   }
+  else {
+
+    if (check_DateToDate) {
+      var txtDate = document.getElementById("txtDate")
+      var txtDate1 = document.getElementById("txtDate1")
+      if (!txtDate1.value || !txtDate.value)
+        swal("Error", "Please enter information about 2 combobox");
+      else {
+        //console.log(formatDate(txtDate.value))
+        ClearAllData("Transaction")
+        getTransaction_fromTo(formatDate(txtDate.value), formatDate(txtDate1.value))
+      }
+    }
+    else {
+      if (optionItem.value == "0")
+        text_alert.style.display = "block"
+      else {
+        text_alert.style.display = "none"
+
+        swal("Do you want do delete old data?", {
+          buttons: ["No", "Yes"],
+        })
+          .then(function (result) {
+            if (result) {
+              // Yes
+              // 4/2020 --> 2020-04-01
+              ClearAllData("Transaction")
+              var formatOptionValue = optionItem.value.split("/")
+              var input_month
+              if (formatOptionValue[0] < 10)
+
+                getTransaction_fromTo(``)
+            }
+            else {
+              //No
+              console.log("2")
+
+            }
+          })
+
+      }
+    }
+  }
+
 
 }
 
@@ -155,4 +180,30 @@ function createDataCombo(objDate) {
     opt.text = `${arrData[i].month}/${arrData[i].year}`
     optionItem.appendChild(opt)
   }
+}
+
+function formatDate(date) {
+  // 28/8/2020 --> 2020-08-28
+  var format = date.split("/")
+  return `${format[2]}-${format[1]}-${format[0]}`
+}
+
+var text_apiKey = document.getElementById("text_apiKey")
+document.getElementById("button_submit_apiKey").onclick = function (e) {
+  if (text_apiKey.value == "")
+    swal("Please enter Api Key");
+  else {
+    console.log('enter full')
+    showLoading()
+  }
+
+}
+
+function showLoading() {
+  document.getElementsByClassName("loader")[0].style.display = "block"
+  setTimeout(getInformationFromAPIKEY(text_apiKey.value), 5000)
+
+}
+function cancelLoading() {
+
 }

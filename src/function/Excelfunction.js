@@ -39,6 +39,7 @@ function renameCurrentSheet(nameSheet){
     })
     .catch(function(error){
         add1Sheet("UserInfo")
+        add1Sheet("Handle API")
     })
     .then(function(e){
         add1Sheet("UserInfo")
@@ -59,3 +60,34 @@ function add1Sheet(nameSheet){
             });
     }).catch(errorHandlerFunction);
 }
+
+// Handler date --> show transaction
+// records = [[],[],[],[]]
+export function showTrans(TOTAL_TRANSACTION){
+    Excel.run(function (context) {
+        var sheet = context.workbook.worksheets.getItem("Transaction")
+        // Create the headers and format them to stand out.
+        var headers = [
+            ["id", "ID giao dịch", "Số tiền", "Thời gian giao dịch"]
+        ];
+        var headerRange = sheet.getRange("B2:E2");
+        headerRange.values = headers;
+        headerRange.format.fill.color = "#4472C4";
+        headerRange.format.font.color = "white";
+
+        // Create the product data rows.
+        var dataRange = sheet.getRange(`B3:E${3 + TOTAL_TRANSACTION.length - 1}`);
+        //var dataRange = sheet.getRange("B3:E12");
+        dataRange.values = TOTAL_TRANSACTION;
+        for (let i = 3; i <= 3 + TOTAL_TRANSACTION.length - 1; ++i) {
+            if (i % 2 == 0)
+                sheet.getRange(`B${i}:E${i}`).format.fill.color = "#CCFFFF"
+            else
+                sheet.getRange(`B${i}:E${i}`).format.fill.color = "#6699FF"
+
+        }
+        return context.sync();
+    });
+
+}
+
