@@ -62,22 +62,22 @@ option{
     display: block;
 }
 
-#gr_radio_fromDatetoDate{
-  display: none;
-}
-#gr_radio_selectDate{
-  display: none;
-}
 
-/* loading */
+
+/* <<================================loading=========================>> */
 .loader {
   display: none;
+  position: absolute;
+  left: 60%;
+  top: 60%;
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  margin: -76px 0 0 -76px;
   border: 16px solid #f3f3f3;
   border-radius: 50%;
   border-top: 16px solid #3498db;
-  width: 50px;
-  height: 50px;
-  -webkit-animation: spin 2s linear infinite; /* Safari */
+  -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
 }
 

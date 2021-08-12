@@ -48,75 +48,68 @@
             <span class="ms-Button-label">Run</span>
         </div>
     </main>
+    <div id="main_group">
+        <div id="main" style="display: none;">
+            <div class="tab">
+                <button class="tablinks" onclick="openCity(event, 'APIKey')">APIKey</button>
+                <button class="tablinks" onclick="openCity(event, 'UserInfo')">UserInfo</button>
+                <button class="tablinks" onclick="openCity(event, 'Transaction')">Transaction</button>
+            </div>
 
-    <div class="tab">
-        <button class="tablinks" onclick="openCity(event, 'APIKey')">APIKey</button>
-        <button class="tablinks" onclick="openCity(event, 'UserInfo')">UserInfo</button>
-        <button class="tablinks" onclick="openCity(event, 'Transaction')">Transaction</button>
-    </div>
+            <div id="APIKey" class="tabcontent">
+                <div id="header_accesstoken_expired">
+                    <h3>Access Token expired</h3>
+                    <button id="button_reload_APIKey">Reload Access Token</button>
+                </div>
+            </div>
 
-    <div id="APIKey" class="tabcontent">
-        <div id="header_accesstoken_expired">
-            <h3>Access Token expired</h3>
-            <button id="button_reload_APIKey">Reload Access Token</button>
+            <div id="UserInfo" class="tabcontent">
+                <button id="button_getUserInfo">Get UserInfo</button>
+            </div>
+
+            <div id="Transaction" class="tabcontent">
+                <button id="button_getTransaction">Get Transaction</button>
+                <br><br>
+                <div>
+                    <div id="gr_radio_fromDatetoDate">
+                        <input type="text" id="txtDate" name="SelectedDate" readonly="readonly" />
+                    </div>
+                </div>
+
+            </div>
+
+            <script>
+                function openCity(evt, cityName) {
+                    var i, tabcontent, tablinks;
+                    tabcontent = document.getElementsByClassName("tabcontent");
+                    for (i = 0; i < tabcontent.length; i++) {
+                        tabcontent[i].style.display = "none";
+                    }
+                    tablinks = document.getElementsByClassName("tablinks");
+                    for (i = 0; i < tablinks.length; i++) {
+                        tablinks[i].className = tablinks[i].className.replace(" active", "");
+                    }
+                    document.getElementById(cityName).style.display = "block";
+                    evt.currentTarget.className += " active";
+                }
+            </script>
+            <br>
+            <!-- change api key here -->
+            <p id="handle_changeApiKey" style="color: red;font-size: 12px;">Click here to change API Key</p>
+
+        </div>
+        <div id="api_key" style="text-align: center;margin-top: 10px;">
+            <input type="text" name="" id="text_apiKey" placeholder="Enter APIKey here..."
+                style="height: 30px;width: 300px;text-align: center;color: red;">
+            <br><br>
+            <button id="button_submit_apiKey">
+                Submit
+            </button>
         </div>
     </div>
 
-    <div id="UserInfo" class="tabcontent">
-        <button id="button_getUserInfo">Get UserInfo</button>
-    </div>
-
-    <div id="Transaction" class="tabcontent">
-        <button id="button_getTransaction">Get Transaction</button>
-        <br><br>
-        <div>
-            <div>
-                <form name="myForm">
-                    <input type="radio" name="myRadios" id="check_selectTime">
-                    <label for="radio_selecttime">Select time</label>
-                    <input type="radio" name="myRadios" id="check_DateToDate">
-                    <label for="html">From date to date</label>
-                </form>
-            </div>
-            <div>
-                <div id="gr_radio_fromDatetoDate">
-                    <input type="text" id="txtDate" name="SelectedDate" readonly="readonly" />
-                    <br><br>
-                    <input type="text" id="txtDate1" name="SelectedDate" readonly="readonly" />
-                </div>
-
-                <div id="gr_radio_selectDate" class="custom-select" style="width:400px;">
-                    <select id="selectItem" style="text-align: center;width: 100px;height: 25px;">
-                        <option value="0">Select time:</option>
-                    </select>
-                    <p id="text_alert" style="color: red;display: none;">Please choose time to get transaction!</p>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        function openCity(evt, cityName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tablinks = document.getElementsByClassName("tablinks");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(cityName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-    </script>
-    <br>
-    <div>
-        <input type="text" name="" id="text_apiKey">
-        <button id="button_submit_apiKey">Submit</button>
-    </div>
     <div class="loader"></div>
+
 </body>
 
 </html>

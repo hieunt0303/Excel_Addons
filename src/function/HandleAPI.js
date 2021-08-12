@@ -1,4 +1,5 @@
 //addContent(API_KEY,ACCESS_TOKEN,"null")
+import {updateInformation_handleAPI} from "../function/Excelfunction.js"
 export function addContent(APIKey, AccessToken, RefreshToken) {
     Excel.run(function (context) {
         var sheet = context.workbook.worksheets.getItem("Handle API")
@@ -48,8 +49,11 @@ export function getInformationFromAPIKEY(apiKey) {
         })
         .then(function (result) {
             console.log(result)
-     document.getElementsByClassName("loader")[0].style.display = "none"
+            updateInformation_handleAPI(result,apiKey)
+            document.getElementById("main").style.display = "block"
+            document.getElementsByClassName("loader")[0].style.display = "none"
 
         })
 
+    
 }
