@@ -1,4 +1,5 @@
 import { API_KEY, ACCESS_TOKEN } from "../valueConst.js"
+import {deleteChart} from "../function/Transaction.js"
 export function ClearAllData(SHEET) {
     if (!SHEET) {
         Excel.run(function (ctx) {
@@ -16,6 +17,12 @@ export function ClearAllData(SHEET) {
         Excel.run(function (ctx) {
             var sheet = ctx.workbook.worksheets.getItem(SHEET);
             sheet.getRange().clear();
+            if(SHEET =="Transaction")
+            {
+                try {
+                    deleteChart() // xóa lun cái chart của giao dịch theo ngày
+                } catch (error){}
+            }
             return ctx.sync();
         }).catch(function (error) {
             console.log("Error: " + error);
@@ -32,21 +39,11 @@ export function addInitialSheet() {
 }
 export function deleteSheet(nameSheet) {
     Excel.run(function (context) {
-        var sheets = context.workbook.worksheets.getItem(nameSheet)
-        sheets.load("items/name");
+        var sheets = context.workbook.worksheets.getItem(nameSheet).delete()
 
         return context.sync()
             .then(function () {
-                if (sheets.items.length === 1) {
-                    console.log("Unable to delete the only worksheet in the workbook");
-                } else {
-                    var lastSheet = sheets.items[sheets.items.length - 1];
-
-                    console.log(`Deleting worksheet named "${lastSheet.name}"`);
-                    lastSheet.delete();
-
-                    return context.sync();
-                };
+                console.warn(`delete success ${nameSheet}`)
             });
     }).catch(errorHandlerFunction);
 }

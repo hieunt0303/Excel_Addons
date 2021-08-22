@@ -1,9 +1,10 @@
 import { get } from "../../src/function/getAccessToken.js"
-import { getUserInfo } from "../../src/function/UserInfo.js"
-import { getTransaction, filterPage } from "../../src/function/Transaction.js"
+import { getUserInfo, showExcel } from "../../src/function/UserInfo.js"
+import { getTransaction, checkLatestTrans, typeChart } from "../../src/function/Transaction.js"
 import swal from 'sweetalert';
 import { ClearAllData, addInitialSheet, deleteSheet, add1Sheet, renameCurrentSheet, getAPIKey_fromTable, handleAccessToken } from "../function/Excelfunction.js"
 import { addContent, getInformationFromAPIKEY } from "../function/HandleAPI.js"
+import {setLoading} from "../function/Loading.js"
 /* global console, document, Excel, Office */
 
 //#region something not necessary
@@ -13,7 +14,11 @@ Office.onReady((info) => {
     //document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
 
-  checkSheetAPIKey_active()
+    checkSheetAPIKey_active()
+
+    // setInterval(function(){
+    //   checkLatestTrans()
+    // },5000)
 
   }
 });
@@ -39,20 +44,6 @@ export async function run() {
 }
 //#endregion
 
-
-
-// HÀM ĐỂ GÁN API KEY TỪ SHEET "HANDLE API" ĐỂ SAU NÀY TÍNH TOÁN
-// NẾU CHƯA CÓ SHEET HOẶC ĐÃ XÓA THÌ API_KEY =="null" --> SẼ TẠO MỚI LẠI CÁC SHEET
-
-
-
-
-
-
-// console.log(API_KEY)
-// CHẠY HÀM NÀY ĐỂ LOAD RA CÁI COMBOBOX HIỂN THỊ CHỌN NGÀY CHO GIAO DỊCH 
-
-
 // DÙNG CHO NGƯỜI MỚI : CHECK XEM ĐÃ CÓ TAB HANDLE APIKEY CHƯA( ĐÃ CÓ APIKEY ĐC NHẬP CHƯA ), NẾU CHƯA THÌ TẠO
 //checkSheetAPIKey_active()
 
@@ -66,30 +57,69 @@ var elementExist = document.getElementById("header_accesstoken_exist")
 document.getElementById("button_reload_APIKey").onclick = function () {
   getAPIKey_fromTable()
   handleAccessToken(API_KEY)
+
+  // show lại chức năng đề phòng bị ẩn do hết hạn access token
+  document.getElementsByClassName("gr-accessTokenNotExpired").forEach(element => {
+    element.style.display = 'block'
+  });
+  document.getElementsByClassName("gr-accessTokenExpired").forEach(element => {
+    element.style.display = 'none'
+  });
+
+  //showChart()
+  //checkLatestTrans()
 }
 
 //<<==================================================== USER INFO ===============================================>>
 
 document.getElementById("button_getUserInfo").onclick = function () {
-  //getUserInfo()
-  //console.log( "2021-02-03" < "2021-02-02")
-  addContent(API_KEY, ACCESS_TOKEN, "null")
+  // check 401
+  checkError401(function (checked) {
+    if (!checked) {
+      setLoading(true)
+      getUserInfo()
+    }
+  })
+
 }
 
 //#region <<============================================== TRANSACTION ==========================================>>
 
 document.getElementById("button_getTransaction").onclick = function () {
+  //check 401
+  checkError401(function (checked) {
+    if (!checked) {
+      var txtDate = document.getElementById("txtDate")
+      console.log(txtDate.value)
+      if (!txtDate.value)
+        swal("Error", "Please enter information about  combobox");
+      else {
+        ClearAllData("Transaction")
+        try {
+          deleteSheet("Chart")
+        } catch (error) {
 
-  var txtDate = document.getElementById("txtDate")
+        }
+        typeChart(function () {
+          console.log(this.returnValue)
+          getTransaction(txtDate.value, this.returnValue)
+          setLoading(true) // SHOW LOADING
+        })
+      }
 
-  if (!txtDate.value)
-    swal("Error", "Please enter information about  combobox");
-  else {
-    //console.log(formatDate(txtDate.value))
-    ClearAllData("Transaction")
-    getTransaction(formatDate(txtDate.value))
-  }
+    
+    }
+  })
+}
 
+document.getElementById("button_getLatestTrans").onclick = function () {
+  //check 401
+  checkError401(function (checked) {
+    if (!checked) {
+      setLoading(true) // SHOW LOADING
+      checkLatestTrans()
+    }
+  })
 }
 
 //#endregion
@@ -100,6 +130,7 @@ document.getElementById("button_submit_apiKey").onclick = function (e) {
   if (text_apiKey.value == "")
     swal("Please enter Api Key");
   else {
+    //API_KEY = text_apiKey.value
     loadingPage()
 
     document.getElementById("api_key").style.display = "none"
@@ -108,7 +139,7 @@ document.getElementById("button_submit_apiKey").onclick = function (e) {
   }
 }
 //#endregion
-//getAPIKey_fromTable()
+
 //#region <<=========================================== ANOTHER FUNCTION ========================================>>
 function loadingPage() {
   // api key == null nghĩa là mới dùng lần đầu 
@@ -159,7 +190,11 @@ document.getElementById("handle_changeApiKey").onclick = function () {
         ClearAllData("Handle API")
         ClearAllData("Transaction")
         ClearAllData("UserInfo")
-
+        try {
+          deleteSheet("Chart")
+        } catch (error) {
+            
+        }
         loadingPage()
 
       }
@@ -239,5 +274,41 @@ function checkSheetAPIKey_active() {
     document.getElementById("api_key").style.display = "block"
     document.getElementById("main").style.display = "none"
   });
+}
+//#endregion
+
+
+//#region =========================================== CHECK 401 ERROR ==================================
+function checkError401(callback) {
+  var url = URL_ROOT + "transactions"
+  fetch(url, {
+    method: "GET",
+    redirect: "follow", // manual, *follow, error
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "default", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin",
+    headers: {
+      authorization: `${ACCESS_TOKEN}`,
+      "X-Auth-Token": `${ACCESS_TOKEN}`,
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": true,
+    },
+  })
+    .then(function (respond) {
+      if (respond.status === 401) {
+        console.warn('hieu 401')
+        // display: block 2 --> 2 chắc năng và hiển thị đoạn text hết hạn access token
+        document.getElementsByClassName("gr-accessTokenNotExpired").forEach(element => {
+          element.style.display = 'none'
+        });
+        document.getElementsByClassName("gr-accessTokenExpired").forEach(element => {
+          element.style.display = 'block'
+        });
+
+        return true
+      }
+      return false
+    }).then(callback)
+
 }
 //#endregion
