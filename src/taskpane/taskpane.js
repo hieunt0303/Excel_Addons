@@ -2,9 +2,9 @@ import { get } from "../../src/function/getAccessToken.js"
 import { getUserInfo, showExcel } from "../../src/function/UserInfo.js"
 import { getTransaction, checkLatestTrans, typeChart } from "../../src/function/Transaction.js"
 import swal from 'sweetalert';
-import { ClearAllData, addInitialSheet, deleteSheet, add1Sheet, renameCurrentSheet, getAPIKey_fromTable, handleAccessToken } from "../function/Excelfunction.js"
+import { ClearAllData, addInitialSheet, deleteSheet, addChartSheet, add1Sheet, renameCurrentSheet, getAPIKey_fromTable, handleAccessToken } from "../function/Excelfunction.js"
 import { addContent, getInformationFromAPIKEY } from "../function/HandleAPI.js"
-import {setLoading} from "../function/Loading.js"
+import { setLoading } from "../function/Loading.js"
 /* global console, document, Excel, Office */
 
 //#region something not necessary
@@ -65,9 +65,6 @@ document.getElementById("button_reload_APIKey").onclick = function () {
   document.getElementsByClassName("gr-accessTokenExpired").forEach(element => {
     element.style.display = 'none'
   });
-
-  //showChart()
-  //checkLatestTrans()
 }
 
 //<<==================================================== USER INFO ===============================================>>
@@ -84,6 +81,16 @@ document.getElementById("button_getUserInfo").onclick = function () {
 }
 
 //#region <<============================================== TRANSACTION ==========================================>>
+globalThis.Check = 0
+async function delay() {
+  for (let i = 0; i <= 100; i++) {
+
+
+    // console.log(this.returnValue)
+
+
+  }
+}
 
 document.getElementById("button_getTransaction").onclick = function () {
   //check 401
@@ -95,19 +102,22 @@ document.getElementById("button_getTransaction").onclick = function () {
         swal("Error", "Please enter information about  combobox");
       else {
         ClearAllData("Transaction")
-        try {
-          deleteSheet("Chart")
-        } catch (error) {
-
-        }
         typeChart(function () {
-          console.log(this.returnValue)
-          getTransaction(txtDate.value, this.returnValue)
-          setLoading(true) // SHOW LOADING
+          if (this.returnValue != "default") {
+            let type = this.returnValue
+            addChartSheet(function (value) {
+              console.warn(value)
+              getTransaction(txtDate.value, type, value)
+              setLoading(true) // SHOW LOADING
+            })
+          }
+          else {
+            console.log(this.returnValue)
+            getTransaction(txtDate.value, this.returnValue, "default")
+            setLoading(true) // SHOW LOADING
+          }
         })
       }
-
-    
     }
   })
 }
@@ -190,11 +200,6 @@ document.getElementById("handle_changeApiKey").onclick = function () {
         ClearAllData("Handle API")
         ClearAllData("Transaction")
         ClearAllData("UserInfo")
-        try {
-          deleteSheet("Chart")
-        } catch (error) {
-            
-        }
         loadingPage()
 
       }
@@ -238,7 +243,7 @@ function formatDate(date) {
 
 
 function showLoading() {
-  document.getElementsByClassName("loader")[0].style.display = "block"
+  document.getElementById("loader").style.display = "block"
   setTimeout(getInformationFromAPIKEY(text_apiKey.value), 3000)
 
 }

@@ -17,7 +17,7 @@
         href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.1/css/fabric.min.css" />
 
     <!-- Template styles -->
-    
+
     <link href="taskpane.css" rel="stylesheet" type="text/css" />
 
     <!-- calender -->
@@ -38,9 +38,9 @@
     <div id="main_group">
         <div id="main" style="display: none;">
             <nav class="nav">
-                <a id="tab-accesstoken" href="#" class="nav-item" active-color="LimeGreen">AccessToken</a>
-                <a id="tab-userinfo" href="#" class="nav-item" active-color="LimeGreen">UserInfo</a>
-                <a id="tab-transaction" href="#" class="nav-item" active-color="LimeGreen">Transaction</a>
+                <a id="tab-accesstoken" href="#" class="nav-item" active-color="#16ab65">AccessToken</a>
+                <a id="tab-userinfo" href="#" class="nav-item" active-color="#16ab65">UserInfo</a>
+                <a id="tab-transaction" href="#" class="nav-item" active-color="#16ab65">Transaction</a>
                 <!-- <a id="4" href="#" class="nav-item" active-color="LimeGreen">Dự Án</a> -->
                 <span class="nav-indicator"></span>
             </nav>
@@ -52,10 +52,12 @@
                         <h2 class="gr-accessTokenExpired" id="animationAccessToken">Access Token expired</h2>
 
                     </div>
+                    <!-- change api key here -->
+                    <p id="handle_changeApiKey" style="color: red;font-size: 12px;">Click here to change API Key</p>
                 </div>
                 <div id="gr-userInfo" style="display: none;">
                     <div class="gr-accessTokenNotExpired">
-                        <button id="button_getUserInfo">Get UserInfo</button>
+                        <button id="button_getUserInfo" title="hieu">Get UserInfo</button>
                     </div>
                     <div class="gr-accessTokenExpired">
                         <h3>Access token is expired</h3>
@@ -76,19 +78,19 @@
                         <div>
                             <div id="gr_radio_fromDatetoDate">
                                 <input type="date" id="txtDate" name="SelectedDate"
-                                    style="padding: 10px;border-radius: 1em;" />
+                                    style="padding: 10px;border-radius: 1em;border: #16ab65 solid;color: #16ab65;" />
                             </div>
                         </div>
                     </div>
 
                 </div>
             </div>
-            <!-- change api key here -->
-            <p id="handle_changeApiKey" style="color: red;font-size: 12px;">Click here to change API Key</p>
         </div>
         <div id="api_key" style="text-align: center;margin-top: 10px;display: none;">
-            <input type="text" name="" id="text_apiKey" placeholder="Enter APIKey here..." style="height: 30px;width: 250px;text-align: center;color: red;
-                padding: 10px;border-radius: 1em;">
+            <img src="https://casso.vn/wp-content/uploads/sites/7/2020/07/casso-logo-mau-padding-1.png" alt=""
+                srcset="">
+            <input type="text" name="" id="text_apiKey" placeholder="Enter APIKey here..." style="height: 30px;width: 250px;text-align: center;
+                padding: 10px;border-radius: 1em;border: #16ab65 solid;color: #16ab65;">
             <br><br>
             <button id="button_submit_apiKey">
                 Submit
@@ -96,17 +98,14 @@
         </div>
     </div>
     <div id="loader">
-        <img src="https://casso.vn/wp-content/uploads/sites/7/2020/07/casso-logo-mau-padding-1.png" alt="" srcset="">
-        <div class="gooey">
-            <span class="dot"></span>
-            <div class="dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+        <img src="https://casso.vn/wp-content/uploads/sites/7/2020/07/casso-logo-mau-padding-1.png" alt="" srcset=""
+            style="display:flex;">
+        <div class="lds-ellipsis">
+            <div></div>
+            <div></div>
+            <div></div>
         </div>
-    </div>
-    <div>
+
 
     </div>
     <script>

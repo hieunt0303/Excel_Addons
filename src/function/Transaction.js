@@ -1,30 +1,24 @@
 import swal from "sweetalert"
-import { add1Sheet, ClearAllData } from "../function/Excelfunction.js"
-import {setLoading} from "../function/Loading.js"
-export function getTransaction(dateFrom, typeChart) {
+import { add1Sheet, ClearAllData,addChartSheet } from "../function/Excelfunction.js"
+import { setLoading } from "../function/Loading.js"
+export function getTransaction(dateFrom, typeChart, nameChartSheet) {
     numberPageTransaction(dateFrom, function (data) {
         getFullTransaction(dateFrom, data["data"]["totalRecords"], function (totalRecords) {
             //console.log(totalRecords["data"]["records"])
             var header =
-                ["id", "ID giao dịch", "Số tiền", "Thời gian giao dịch"]
+                ["id", "ID Transaction", "Transaction time", "Description", "Amount", "Cusum_balance"]
             showTrans(
                 "Transaction",
                 handlerData(totalRecords["data"]["records"]),
                 header,
-                "A1:D1",
-                "tableTrans"
+                "A1:F1",
+                "tableTrans",
+                ["E", "F"] // cột muốn hiển thị theo kiểu Currency
             )
             if (typeChart != "default") {
-                add1Sheet("Chart")
-                try {
-                    // có trường hợp đã có data rồi và chưa tạo sheet
-                    ClearAllData("Chart")
-                } catch (error) {
-                    console.log(error)
-                }
-                createTransForDate(typeChart)
+                createTransForDate(typeChart, nameChartSheet)
             }
-            setTimeout(setLoading(false),2000)
+            setTimeout(setLoading(false), 2000)
         })
     })
 }
@@ -99,13 +93,13 @@ function convertArray(obj) {
     // let converted_date = `${arrWhen[1]}/${arrWhen[2]}/${arrWhen[0]}`
 
     // console.warn(converted_date)
-    return [obj["id"], obj["tid"], obj["amount"], obj["when"]]
+    return [obj["id"], obj["tid"], obj["when"], obj["description"], obj["amount"], obj["cusumBalance"]]
 }
 
-
-function showTrans(nameSheet, arrData, arrHeader, positionHeader, nameTable) {
-    console.log(arrData.length)
-    console.log(typeof arrData)
+// formatCurrency = ["E","F",....] --> chứa cột muốn định dạng số 
+function showTrans(nameSheet, arrData, arrHeader, positionHeader, nameTable, formatCurrency) {
+    console.log(arrData)
+    console.log(arrData)
     Excel.run(function (context) {
         var sheet = context.workbook.worksheets.getItem(nameSheet)
         var tableTrans = sheet.tables.add(positionHeader, true)
@@ -123,6 +117,18 @@ function showTrans(nameSheet, arrData, arrHeader, positionHeader, nameTable) {
         if (Office.context.requirements.isSetSupported("ExcelApi", "1.2")) {
             sheet.getUsedRange().format.autofitColumns();
             sheet.getUsedRange().format.autofitRows();
+            // sheet.getRange("F1:F1").format.autofitColumns();
+
+            sheet.getRange("D1:D1").format.columnWidth = 400
+            sheet.getRange("E1:E1").format.columnWidth = 100
+            sheet.getUsedRange().format.wrapText = true
+            sheet.getUsedRange().format.verticalAlignment = 'center'
+            sheet.getRange("A1:F1").format.horizontalAlignment = 'center'
+            formatCurrency.forEach(element => {
+                sheet.getRange(`${element}2:${element}${arrData.length + 1}`).numberFormat = '$#,##0.00;[Red]$#,##0.00'
+                sheet.getRange(`${element}2:${element}${arrData.length + 1}`).format.columnWidth = 100
+            })
+          
         }
 
         sheet.activate();
@@ -140,63 +146,61 @@ function showLatestTrans(arrLatestTrans) {
         if (Office.context.requirements.isSetSupported("ExcelApi", "1.2")) {
             sheet.getUsedRange().format.autofitColumns();
             sheet.getUsedRange().format.autofitRows();
+
+            sheet.getRange("D1:D1").format.columnWidth = 400
+            sheet.getUsedRange().format.wrapText = true
+            sheet.getUsedRange().format.verticalAlignment = 'center'
         }
         return context.sync();
     });
 }
 export function checkLatestTrans() {
     getLastTrans(function (obj) {
-        numberPageTransaction(obj["latestTime"], function (data) {
-            getFullTransaction(obj["latestTime"], data["data"]["totalRecords"], function (totalRecords) {
+        numberPageTransaction(obj["lastTime"], function (data) {
+            getFullTransaction(obj["lastTime"], data["data"]["totalRecords"], function (totalRecords) {
                 console.log(totalRecords["data"]["records"])
+                // console.warn(getArrLatestTrans(totalRecords["data"]["records"], obj["totalIdInLastDayTrans"]))
 
-                totalRecords["data"]["records"].forEach(function (element, index) {
-                    if (element["id"] == obj["latestId"]) {
-                        var arrLatestTrans = totalRecords["data"]["records"].slice(index + 1)
-                        console.log(arrLatestTrans)
-                        setLoading(false) // stop SHOW LOADING
-                        if (arrLatestTrans.length != 0) {
-                            swal("Hey, you just got new transaction do you want to sync it ?", {
-                                buttons: {
-                                    catch: "Sync Trans",
-                                    defeat: "Sync Trans, Chart",
-                                    cancel: "No",
-                                },
-                            })
-                                .then(function (result) {
-                                    if (result) {
-                                        switch (result) {
-                                            case "defeat": {
-                                                try {
-                                                    deleteChart("Chart") // xóa lun cái chart của giao dịch theo ngày
-                                                } catch (error) {
-                                                    deleteTable("Chart", "tableTransDay") // xóa cái bảng giao dịch theo ngày
-                                                    console.error("delete table success")
-                                                }
-                                                finally {
-                                                    showLatestTrans(handlerData(totalRecords["data"]["records"].slice(index + 1)))
-                                                    typeChart(function(){
-                                                        console.log(this.returnValue)
-                                                        createTransForDate(this.returnValue) // tạo lại cái giao dịch theo ngày
-                                                      })
-                                                }
-                                                break;
-                                            }
-                                            case "catch": {
-                                                showLatestTrans(handlerData(totalRecords["data"]["records"].slice(index + 1)))
-                                                swal("Success!", "Update Transaction successfull!", "success");
-                                                break;
-                                            }
-                                            default:
-                                                swal("The latest Trans is not sync.");
-                                        }
+                var arrLatestTrans = getArrLatestTrans(totalRecords["data"]["records"], obj["totalIdInLastDayTrans"])
+                console.log(arrLatestTrans)
+                setLoading(false) // stop SHOW LOADING
+                if (arrLatestTrans.length != 0) {
+                    swal("Hey, you just got new transaction do you want to sync it ?", {
+                        buttons: {
+                            catch: "Sync Trans",
+                            defeat: "Sync Trans, Chart",
+                            cancel: "No",
+                        },
+                    })
+                        .then(function (result) {
+                            if (result) {
+                                switch (result) {
+                                    case "defeat": {
+                                        showLatestTrans(handlerData(arrLatestTrans))
+                                        typeChart(function () {
+                                            console.log(this.returnValue)
+                                            let type = this.returnValue
+                                            addChartSheet(function (value) {
+                                                console.warn(value)
+                                                createTransForDate(type, value) // tạo lại cái giao dịch theo ngày
+                                            })
+                                        })
+
+                                        break;
                                     }
-                                })
-                        }else{
-                            swal("You have no new transaction.")
-                        }
-                    }
-                })
+                                    case "catch": {
+                                        showLatestTrans(handlerData(arrLatestTrans))
+                                        swal("Success!", "Update Transaction successfull!", "success");
+                                        break;
+                                    }
+                                    default:
+                                        swal("The latest Trans is not sync.");
+                                }
+                            }
+                        })
+                } else {
+                    swal("You have no new transaction.")
+                }
             })
         })
     })
@@ -213,7 +217,7 @@ function getLastTrans(callback) {
         var expensesTable = sheet.tables.getItem("tableTrans");
 
         // Get data from a single column
-        var timeTrans = expensesTable.columns.getItem("Thời gian giao dịch").getDataBodyRange().load("values");
+        var timeTrans = expensesTable.columns.getItem("Transaction time").getDataBodyRange().load("values");
         var idTrans = expensesTable.columns.getItem("id").getDataBodyRange().load("values");
         return context.sync()
             .then(function () {
@@ -226,9 +230,10 @@ function getLastTrans(callback) {
                     return converted_date;
                 })
                 var objOutput = {
-                    "latestId": arrId[arrId.length - 1],
+                    "lastId": arrId[arrId.length - 1],
                     //"latestId": "360331",
-                    "latestTime": arrTime[arrTime.length - 1]
+                    "lastTime": arrTime[arrTime.length - 1],
+                    "totalIdInLastDayTrans": getAllIdInLastDayTrans(arrId, arrTime)
                 }
                 console.log(objOutput)
                 // Sync to update the sheet in Excel
@@ -239,7 +244,24 @@ function getLastTrans(callback) {
         console.log(error)
     });
 }
-
+function getArrLatestTrans(totalRecords, totalIdInLastDayTrans) {
+    var arrLatestTrans = []
+    totalRecords.forEach(function (element) {
+        if (totalIdInLastDayTrans.indexOf(element["id"]) == -1)
+            arrLatestTrans.push(element)
+    })
+    return arrLatestTrans
+}
+function getAllIdInLastDayTrans(arrId, arrTime) {
+    var indexTime = arrTime[arrTime.length - 1]
+    var arrTotalId = []
+    for (let i = arrTime.length - 1; i >= 0; --i) {
+        if (indexTime != arrTime[i])
+            break
+        arrTotalId.push(arrId[i])
+    }
+    return arrTotalId
+}
 function showLoadingTrans(bool) {
     if (bool) {
         document.getElementsByClassName("loader")[0].style.display = "block"
@@ -253,7 +275,7 @@ function showLoadingTrans(bool) {
 
 // hàm dùng để tạo 1 bảng có doanh thu theo tháng từ cái bảng trong trans
 // chartData = {allMoney : [[],[],[],...], allTime : [[],[],[],...}
-export function createTransForDate(typeChart) {
+export function createTransForDate(typeChart, nameChartSheet) {
     console.log(typeChart)
     getAllTimeAndID(function (chartData) {
         var obj = formatTypeChart(chartData, typeChart)
@@ -277,42 +299,48 @@ export function createTransForDate(typeChart) {
             sumMoneyPerDay(obj["allMoney"], startIndex, obj["allTime"].length)
         ])
         console.log(arrOutput)
-        var header = ["Ngày giao dịch", "Chi", "Thu"]
-        showTrans("Chart", formatArrTransPerDay(arrOutput), header, "A1:C1", "tableTransDay")
-        showChart("Chart", `A1:C${arrOutput.length}`)
+        let header = ["Transaction time", "Spending", "Incoming"]
+        showTrans(
+            nameChartSheet,
+            formatArrTransPerDay(arrOutput),
+            header,
+            "A1:C1",
+            `tableChart${nameChartSheet}`,
+            ["B", "C"] // cột muốn hiển thị theo kiểu Currency
+        )
+        showChart(
+            nameChartSheet,
+            `A1:C${arrOutput.length}`,
+            `${typeChart} From ${chartData["allTime"][0]} To ${chartData["allTime"][chartData["allTime"].length - 1]}`
+        )
     })
 }
-
+// arrOutput =[ ["date",[spendingTrans,incomingTrans]],.....]
 function formatArrTransPerDay(arr) {
     var output = []
     arr.forEach(function (element) {
-        if (element[1] <= 0) {
-            output.push([
-                element[0],
-                Math.abs(element[1]),
-                ""
-            ])
-        }
-        else {
-            output.push([
-                element[0],
-                "",
-                element[1],
-            ])
-        }
+        output.push([
+            element[0],
+            element[1][0],
+            element[1][1],
+        ])
     })
+    console.log(output)
     return output
 }
 function sumMoneyPerDay(arrMoney, startIndex, lastIndex) {
-    var sum = 0
+    let sum = 0
+    let spendingTrans = 0
+    let incomingTrans = 0
     for (var i = startIndex; i < lastIndex; i++) {
-        sum += arrMoney[i]
+        if (arrMoney[i] < 0)
+            spendingTrans += arrMoney[i]
+        else
+            incomingTrans += arrMoney[i]
     }
-    return sum
+    return [Math.abs(spendingTrans), incomingTrans]
 }
-function createTransForMonth() {
 
-}
 function getAllTimeAndID(callback) {
     Excel.run(function (context) {
         try {
@@ -324,8 +352,8 @@ function getAllTimeAndID(callback) {
         var expensesTable = sheet.tables.getItem("tableTrans");
 
         // Get data from a single column
-        var timeTrans = expensesTable.columns.getItem("Thời gian giao dịch").getDataBodyRange().load("values");
-        var moneyTrans = expensesTable.columns.getItem("Số tiền").getDataBodyRange().load("values");
+        var timeTrans = expensesTable.columns.getItem("Transaction time").getDataBodyRange().load("values");
+        var moneyTrans = expensesTable.columns.getItem("Amount").getDataBodyRange().load("values");
         return context.sync()
             .then(function () {
                 console.warn(timeTrans.values)
@@ -354,18 +382,18 @@ function getAllTimeAndID(callback) {
 
 }
 //<<================================================== Chart=======================================>>
-export function showChart(nameSheet, position) {
+export function showChart(nameSheet, position, title) {
     Excel.run(function (context) {
         var sheet = context.workbook.worksheets.getItem(nameSheet);
         var dataRange = sheet.getRange(position);
         var chart = sheet.charts.add("ColumnClustered", dataRange, "auto");
 
-        chart.title.text = "Sales Data";
+        chart.title.text = title;
         chart.legend.position = "right"
-        chart.legend.format.fill.setSolidColor("white");
-        chart.dataLabels.format.font.size = 7;
-        chart.dataLabels.format.font.color = "black";
-
+        // chart.legend.format.fill.setSolidColor("white");
+        // chart.dataLabels.format.font.size = 7;
+        // chart.dataLabels.format.font.color = "green";
+        chart.dataLabels.showValue = false
         return context.sync();
     }).catch(errorHandlerFunction);
 }
@@ -379,7 +407,7 @@ export function deleteChart(nameSheet) {
     }).catch(errorHandlerFunction);
 }
 
-function deleteTable(nameSheet,nameTable) {
+function deleteTable(nameSheet, nameTable) {
     Excel.run(function (context) {
         console.warn("delete table success")
         var sheet = context.workbook.worksheets.getItem(nameSheet);
@@ -400,9 +428,13 @@ export function typeChart(callback) {
     const selectEl = document.querySelector('select');
     const confirmBtn = document.getElementById('confirmBtn');
     if (typeof favDialog.showModal === "function") {
-        favDialog.showModal();
+        console.warn("show dialog.")
+
+        setTimeout(() => {
+            favDialog.showModal();
+        }, 0)
     } else {
-        alert("The <dialog> API is not supported by this browser");
+        // alert("The <dialog> API is not supported by this browser");
     }
 
     selectEl.addEventListener('change', function onSelect(e) {

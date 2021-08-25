@@ -1,5 +1,5 @@
 import { API_KEY, ACCESS_TOKEN } from "../valueConst.js"
-import {deleteChart} from "../function/Transaction.js"
+import { deleteChart } from "../function/Transaction.js"
 export function ClearAllData(SHEET) {
     if (!SHEET) {
         Excel.run(function (ctx) {
@@ -17,11 +17,10 @@ export function ClearAllData(SHEET) {
         Excel.run(function (ctx) {
             var sheet = ctx.workbook.worksheets.getItem(SHEET);
             sheet.getRange().clear();
-            if(SHEET =="Transaction")
-            {
+            if (SHEET == "Transaction") {
                 try {
                     deleteChart() // xóa lun cái chart của giao dịch theo ngày
-                } catch (error){}
+                } catch (error) { }
             }
             return ctx.sync();
         }).catch(function (error) {
@@ -58,6 +57,33 @@ export function renameCurrentSheet(nameSheet) {
             })
 
     })
+
+}
+export function addChartSheet(callback) {
+    swal("Write name Sheet you want to create Chart:", {
+        content: "input",
+    })
+        .then((value) => {
+            Excel.run(function (context) {
+                var sheets = context.workbook.worksheets;
+                var sheet = sheets.add(value);
+
+                sheet.load("name, position");
+                return context.sync()
+                    .then(function () {
+                        console.log(`Added worksheet named "${sheet.name}" in position ${sheet.position}`);
+                        // Check = 1
+                        return sheet.name
+                    })
+                    .then(callback)
+                    .catch(function() {
+                        console.log(`nameSheet exists.`);
+                        // return "error"
+                    })
+                    
+            })
+
+        })
 
 }
 export function add1Sheet(nameSheet) {

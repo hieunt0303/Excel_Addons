@@ -51,9 +51,6 @@ export function getInformationFromAPIKEY(apiKey) {
             console.log(result)
             updateInformation_handleAPI(result,apiKey)
             document.getElementById("main").style.display = "block"
-            document.getElementsByClassName("loader")[0].style.display = "none"
-
+            document.getElementById("loader").style.display = "none"
         })
-
-    
 }
