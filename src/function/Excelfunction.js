@@ -219,13 +219,13 @@ function formatCurrentDate(date) {
     var arr = String(date).split(' ')
 
     var formatVN_day = {
-        'Sun': "Chủ nhật",
-        'Mon': "Thứ 2",
-        'Tue': "Thứ 3",
-        'Wed': "Thứ 4",
-        'Thu': "Thứ 5",
-        'Fri': "Thứ 6",
-        'Sat': "Thứ 7"
+        'Sun': "Sunday ",
+        'Mon': "Monday ",
+        'Tue': "Tuesday ",
+        'Wed': "Wednesday",
+        'Thu': "Thursday",
+        'Fri': "Friday",
+        'Sat': "Saturday"
     }
     var formatVN_months = {
         'Jan': "1",
@@ -243,7 +243,7 @@ function formatCurrentDate(date) {
     }
     console.log(arr)
     var output =
-        `${formatVN_day[arr[0]]} ${arr[2]}/${formatVN_months[arr[1]]}/${arr[3]} vào lúc ${arr[4]} `
+        `${formatVN_day[arr[0]]} ${arr[2]}/${formatVN_months[arr[1]]}/${arr[3]} at ${arr[4]} `
 
     console.log(output)
     return output
